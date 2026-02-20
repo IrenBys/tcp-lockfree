@@ -1,4 +1,4 @@
-#include "server.h"
+#include "header/Server.h"
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -27,10 +27,26 @@ void Server::start()
 	std::cout << "Server started on port " << port << std::endl;
 
 	std::cout << "Creating server socket..." << std::endl;
-	createServerSocket();
+	if (!createServerSocket())
+	{
+		std::cerr << "Failed to create server socket. Server cannot start." << std::endl;
+		return;
+	}
 
+	std::cout << "Binding server socket to port..." << std::endl;
+	if (!bindServerSocket())
+	{
+		std::cerr << "Failed to bind server socket. Server cannot start." << std::endl;
+		return;
+	}
 
-
+	if (!listenForClients())
+	{
+		std::cerr << "Failed to listen for clients. Server cannot start." << std::endl;
+		return;
+	}
+	std::cout << "Starting to listen for clients..." << std::endl;
+	
 
 
 	
@@ -49,10 +65,17 @@ void Server::stop()
 // Метод для принятия клиентов
 void Server::acceptClients()
 {
-	// Код для принятия клиентов (например, цикл для принятия входящих соединений и создания потоков для обработки клиентов)
-	while (isRunning)
+	while(isRunning)
 	{
-		// Здесь можно добавить код для принятия входящих соединений и создания потоков для обработки клиентов
+
+		struct sockaddr_in clientAddr;					// структура для хранения адреса клиента
+		socklen_t clientAddrLen = sizeof(clientAddr);	// размер структуры адреса клиента
+
+		// Принятие входящего соединения от клиента
+		clientSocket = accept(serverSocket, (sockaddr*)&clientAddr, &clientAddrLen);
+
+		// Создание нового потока для обработки клиента
+		clientThreads()
 	}
 }
 
@@ -71,7 +94,7 @@ bool Server::createServerSocket()
 	}
 }
 
-bool Server::bindServerSocket()
+bool Server::bindServerSocket() 
 {
 	struct sockaddr_in serverAddr;	// структура для хранения адреса сервера
 
@@ -95,9 +118,31 @@ bool Server::bindServerSocket()
 	}
 }
 
-
-bool Server::setupServerSocket()
+// Метод для начала прослушивания входящих соединений
+bool Server::listenForClients() 
 {
-	
-	return false;
+	// Начинаем прослушивание входящих соединений
+	// SOMAXCONN - это максимальное количество ожидающих соединений, которое может быть поставлено в очередь
+
+	if (listen(serverSocket, SOMAXCONN) == -1)
+	{
+		std::cerr << "Failed to listen for clients. Error: " << strerror(errno) << std::endl;
+		return false;
+	}
+	else {
+		std::cout << "Server is now listening for clients." << std::endl;
+		return true;
+	}
 }
+
+void Server::handleClient(int clientSocket)
+{
+	// Код для обработки клиента (например, чтение данных, отправка ответа)
+	std::cout << "Handling client with socket: " << clientSocket << std::endl;
+	while(isRunning)
+	{
+
+	}
+}
+
+
