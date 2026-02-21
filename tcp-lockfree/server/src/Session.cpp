@@ -1,19 +1,17 @@
 #include "header/Session.h"
 
+// Конструктор для инициализации сокета клиента
 Session::Session(int clientSocket)
-	: clientSocket(clientSocket)
+	: clientSocket(clientSocket), isConnected(true)
 {
 }
 
+// Деструктор для очистки ресурсов
 Session::~Session()
 {
-	// Закрываем сокет клиента при уничтожении сессии
-	if (clientSocket != -1)
-	{
-		close(clientSocket);
-	}
+	stopSession(); // Останавливаем сессию и освобождаем ресурсы
 }
-
+// Метод для получения данных от клиента
 void Session::receiveData()
 {
 	// Код для получения данных от клиента
@@ -23,6 +21,7 @@ void Session::receiveData()
 	{
 		buffer[bytesRead] = '\0'; // Добавляем нулевой терминатор
 		std::cout << "Received data from client: " << buffer << std::endl;
+		messageHandler.handleMessage(std::string(buffer)); // Обрабатываем сообщение от клиента
 	}
 	else if (bytesRead == 0)
 	{
@@ -34,6 +33,7 @@ void Session::receiveData()
 	}
 }
 
+// Метод для отправки данных клиенту
 size_t Session::sendData(const char* data)
 {
 	// Код для отправки данных клиенту
@@ -47,5 +47,16 @@ size_t Session::sendData(const char* data)
 	{
 		std::cout << "Sent data to client: " << data << std::endl;
 		return static_cast<size_t>(bytesSent);
+	}
+}
+
+void Session::stopSession()
+{
+	// Код для остановки сессии (например, при отключении клиента)
+	isConnected = false;
+	if (clientSocket != -1)
+	{
+		close(clientSocket);
+		clientSocket = -1;
 	}
 }
