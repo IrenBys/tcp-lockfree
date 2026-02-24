@@ -1,4 +1,10 @@
-#include "header/Session.h"
+#include "Session.h"
+#include <iostream>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <cstring>
+#include <cerrno>
 
 // Конструктор для инициализации сокета клиента
 Session::Session(int clientSocket)
@@ -29,7 +35,7 @@ void Session::receiveData()
 	}
 	else
 	{
-		std::cerr << "Failed to receive data from client. Error: " << strerror(errno) << std::endl;
+		std::cerr << "Failed to receive data from client. Error: " << std::strerror(errno) << std::endl;
 	}
 }
 

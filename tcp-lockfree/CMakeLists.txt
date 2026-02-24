@@ -13,7 +13,15 @@ project ("tcp-lockfree")
 
 # Добавьте источник в исполняемый файл этого проекта.
 # add_executable (tcp-lockfree "tcp-lockfree.cpp" "tcp-lockfree.h" "server/main.cpp")
-add_executable (server "server/src/Server.cpp" "server/header/Server.h" "server/src/main.cpp" "server/src/Session.cpp" "server/header/Session.h" "server/header/MessageHandler.h")
+add_executable (server 
+	"server/src/Server.cpp" 
+	"server/header/Server.h" 
+	"server/src/main.cpp" 
+	"server/src/Session.cpp" 
+	"server/header/Session.h" 
+	"server/header/MessageHandler.h"
+	"server/src/MessageHandler.cpp"
+)
 # add_executable (server "client/client.cpp" "client/client.h" "common/*.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
@@ -22,3 +30,4 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 # TODO: Добавьте тесты и целевые объекты, если это необходимо.
+target_include_directories(server PRIVATE server/header)

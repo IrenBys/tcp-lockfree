@@ -1,4 +1,5 @@
-#include "header/Server.h"
+#include "Server.h"
+#include "Session.h"
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -40,16 +41,15 @@ void Server::start()
 		return;
 	}
 
+	std::cout << "Starting to listen for clients..." << std::endl;
 	if (!listenForClients())
 	{
 		std::cerr << "Failed to listen for clients. Server cannot start." << std::endl;
 		return;
 	}
-	std::cout << "Starting to listen for clients..." << std::endl;
 	
-
-
-	
+	std::cout << "Starting to accept clients..." << std::endl;
+	acceptClients();
 
 }
 
@@ -57,9 +57,23 @@ void Server::start()
 void Server::stop()
 {
 	// Код для остановки сервера (например, закрытие сокета, остановка всех клиентских потоков)
-	isRunning = false;
+	if (isRunning)
+	{
+		isRunning = false;
+	}
 	std::cout << "Server stopped." << std::endl;
-	// Здесь можно добавить код для закрытия сокета и остановки всех клиентских потоков
+	// Закрытия сокета и остановки всех клиентских потоков
+	if (serverSocket != -1)
+	{
+		close(serverSocket);
+	}
+
+	for (auto i = clientThreads.begin(); i != clientThreads.end(); ++i) {
+		if ((*i).joinable())
+		{
+			(*i).join();
+		}
+	}
 }
 
 // Метод для принятия клиентов
@@ -73,9 +87,16 @@ void Server::acceptClients()
 
 		// Принятие входящего соединения от клиента
 		clientSocket = accept(serverSocket, (sockaddr*)&clientAddr, &clientAddrLen);
+		
+		if (clientSocket < 0)
+		{
+			std::cerr << "Accept failed: " << strerror(errno) << std::endl;
+			continue;
+		}
+	
+		std::cout << "Client connected. Socket: " << clientSocket << std::endl;
 
-		// Создание нового потока для обработки клиента
-		clientThreads()
+		clientThreads.emplace_back(&Server::handleClient, this, clientSocket);
 	}
 }
 
@@ -139,10 +160,8 @@ void Server::handleClient(int clientSocket)
 {
 	// Код для обработки клиента (например, чтение данных, отправка ответа)
 	std::cout << "Handling client with socket: " << clientSocket << std::endl;
-	while(isRunning)
-	{
-
-	}
+	Session session(clientSocket);
+	session.receiveData();
 }
 
 

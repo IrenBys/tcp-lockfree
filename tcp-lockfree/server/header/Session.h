@@ -1,5 +1,5 @@
 #pragma once
-#include "header/MessageHandler.h"
+#include "MessageHandler.h"
 
 // Класс для управления сессией с клиентом
 // Этот класс будет использоваться для обработки данных от клиента и отправки ответов
@@ -20,11 +20,13 @@ public:
 	~Session();							// деструктор для очистки ресурсов
 	void receiveData();					// метод для получения данных от клиента
 	size_t sendData(const char* data);	// метод для отправки данных клиенту
-	
+	void stopSession();					// метод для остановки сессии (например, при отключении клиента)
+
 
 private:
 	int clientSocket;					// сокет для клиента
 	bool isConnected;					// флаг для контроля состояния соединения с клиентом
 	MessageHandler messageHandler;		// объект для обработки сообщений от клиента
 
-}
+
+};

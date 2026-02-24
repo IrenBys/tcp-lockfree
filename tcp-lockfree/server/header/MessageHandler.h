@@ -13,4 +13,4 @@ public:
 	MessageHandler() = default;								// конструктор по умолчанию
 	~MessageHandler() = default;							// деструктор по умолчанию
 	std::string handleMessage(const std::string& message);	// метод для обработки входящих сообщений от клиентов
-}
+};
